@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace APIservico.Models
 {
@@ -17,5 +18,16 @@ namespace APIservico.Models
         public DateTime? DataFechamento { get; set; }
         [Column("situacao_cha")]
         public string Status { get; set; } = "Aberto";
+        /*
+            Configuração de Relacionamento um-para-muitos (n:1)
+            entre Chamado (n) e Prioridade (1)
+
+            Configuração Inversa
+         */
+        public virtual Prioridade? Prioridade { get; set; }
+
+        [JsonIgnore]
+        [Column("id_pri_fk")]
+        public int PrioridadeId { get; set; }
     }
 }

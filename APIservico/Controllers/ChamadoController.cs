@@ -44,12 +44,21 @@ namespace APIservico.Controllers
                 //return Ok(chamados);
             }
             if (situacao is not null) // Busca por situação
-            {
+            { 
                 query = query.Where(x => x.Status.Equals(situacao));
 
             }
 
-            var chamados = await query.ToListAsync();
+            var chamados = await query
+                .Include(p => p.Prioridade)
+                .Select(c => new
+            {
+                c.Id,
+                c.Titulo,
+                c.Status,
+                Prioridade = new {c.Prioridade.Nome}
+            })
+                .ToListAsync();
             return Ok(chamados);
 
             //var chamados = await _context.Chamados.ToListAsync();
@@ -78,7 +87,13 @@ namespace APIservico.Controllers
         [HttpPost] // Criar novo Chamado
         public async Task<IActionResult> Criar([FromBody] ChamadoDto novoChamado) // criado o chamadoDto somente para não puxar id e status, puxar apenas titulo e descrição.
         {
-            var chamado = new Chamado() { Titulo = novoChamado.Titulo, Descricao = novoChamado.Descricao };
+            var prioridade = await _context.Prioridades.FirstOrDefaultAsync(x => x.Id == novoChamado.PrioridadeId);
+            if(prioridade is null)
+            {
+                return NotFound("Prioridade informado não encontrada");
+            }
+
+            var chamado = new Chamado() { Titulo = novoChamado.Titulo, Descricao = novoChamado.Descricao, PrioridadeId = novoChamado.PrioridadeId };
 
             await _context.Chamados.AddAsync(chamado);
             await _context.SaveChangesAsync();

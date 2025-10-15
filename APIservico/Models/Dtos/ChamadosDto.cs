@@ -13,5 +13,8 @@ namespace APIservico.Models.Dtos
 
         [Required(ErrorMessage = "A Descrição é obrigatória!")]
         public required string Descricao {  get; set; }
+
+        [Required]
+        public int PrioridadeId { get; set;}
     }
 }
